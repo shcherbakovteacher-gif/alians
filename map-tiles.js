@@ -7,6 +7,7 @@ function createSatelliteLayer(container) {
   const antarcticLevel = 12;
   const tiles = new Map();
   let scheduled = 0;
+  let loadTimer = 0;
   let viewport;
 
   function availableLevel(view) {
@@ -40,28 +41,51 @@ function createSatelliteLayer(container) {
     const tile = { image, column, row, level, loaded: false, touched: performance.now() };
     tiles.set(key, tile);
     image.addEventListener('load', () => { tile.loaded = true; schedule(); });
+    image.addEventListener('error', () => {
+      if (tiles.get(key) === tile) tiles.delete(key);
+      image.remove();
+    });
     image.src = source;
     container.append(image);
     return tile;
   }
 
-  function render() {
-    scheduled = 0;
+  function levelFor(worldWidth) {
+    const requiredPixels = worldWidth * Math.min(devicePixelRatio || 1, 2);
+    return requiredPixels <= 4096 ? 0 : Math.min(availableLevel(viewport), Math.ceil(Math.log2(requiredPixels / (2 * tilePixels))));
+  }
+
+  function loadVisibleTiles() {
     const { x, y, width, height, fit, zoom } = viewport;
     const worldWidth = fit * zoom;
-    const requiredPixels = worldWidth * Math.min(devicePixelRatio || 1, 2);
-    const level = requiredPixels <= 4096 ? 0 : Math.min(availableLevel(viewport), Math.ceil(Math.log2(requiredPixels / (2 * tilePixels))));
+    const level = levelFor(worldWidth);
     const tileSize = worldWidth / (2 * 2 ** level);
+    const needed = new Set();
     if (level) {
       const minColumn = Math.max(0, Math.floor(-x / tileSize));
       const maxColumn = Math.min(2 ** (level + 1) - 1, Math.ceil((width - x) / tileSize) - 1);
       const minRow = Math.max(0, Math.floor(-y / tileSize));
       const maxRow = Math.min(2 ** level - 1, Math.ceil((height - y) / tileSize) - 1);
       for (let row = minRow; row <= maxRow; row += 1) {
-        for (let column = minColumn; column <= maxColumn; column += 1) getTile(level, column, row);
+        for (let column = minColumn; column <= maxColumn; column += 1) {
+          needed.add(`${level}/${column}/${row}`);
+          getTile(level, column, row);
+        }
       }
     }
+    for (const [key, tile] of tiles) {
+      if (tile.loaded || needed.has(key)) continue;
+      tile.image.removeAttribute('src');
+      tile.image.remove();
+      tiles.delete(key);
+    }
+  }
 
+  function render() {
+    scheduled = 0;
+    const { x, y, width, height, fit, zoom } = viewport;
+    const worldWidth = fit * zoom;
+    const level = levelFor(worldWidth);
     const now = performance.now();
     for (const tile of tiles.values()) {
       const size = worldWidth / (2 * 2 ** tile.level);
@@ -84,8 +108,12 @@ function createSatelliteLayer(container) {
     }
   }
 
-  function schedule(view = viewport) {
-    viewport = view;
+  function schedule(view) {
+    if (view) {
+      viewport = view;
+      clearTimeout(loadTimer);
+      loadTimer = setTimeout(loadVisibleTiles, 125);
+    }
     if (!scheduled) scheduled = requestAnimationFrame(render);
   }
 
