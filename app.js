@@ -11,6 +11,8 @@ const zoomOut = document.querySelector('#zoom-out');
 const panel = document.querySelector('#comparison');
 const closePanel = document.querySelector('#close-comparison');
 const focusButton = document.querySelector('#focus-site');
+const researchSelect = document.querySelector('#research-type');
+const scoreFormat = new Intl.NumberFormat('en', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 const satelliteLayer = createSatelliteLayer(map.querySelector('.map-tiles'));
 
 const view = { width: 0, height: 0, fit: 0, zoom: 1, x: 0, y: 0 };
@@ -32,6 +34,34 @@ function coordinate(value, positive, negative) {
   return `${Math.abs(value).toFixed(2)}° ${value >= 0 ? positive : negative}`;
 }
 
+function sourceLink(label, url) {
+  const link = element('a', `${label} ↗`, 'text-link');
+  link.href = url;
+  return link;
+}
+
+for (const [id, profile] of Object.entries(researchProfiles)) {
+  const option = element('option', profile.name);
+  option.value = id;
+  researchSelect.append(option);
+}
+
+function showSimilarity(site) {
+  const { overall, criteria } = calculateSimilarity(site, researchSelect.value);
+  setText('comparison-score', `${scoreFormat.format(overall)}%`);
+  document.getElementById('similarity-meter').value = overall;
+  document.getElementById('similarity-rows').replaceChildren(...criteria.map(criterion => {
+    const row = element('tr');
+    const heading = element('th', criterion.name);
+    heading.scope = 'row';
+    heading.append(element('small', criterion.evidence));
+    row.append(heading, element('td', `${scoreFormat.format(criterion.local)}%`), element('td', `${criterion.weight}%`), element('td', scoreFormat.format(criterion.contribution)));
+    return row;
+  }));
+}
+
+researchSelect.addEventListener('change', () => showSimilarity(activeSite));
+
 function showComparison(site) {
   activeSite = site;
   const target = analogData.targets[site.target];
@@ -41,7 +71,16 @@ function showComparison(site) {
   setText('comparison-location', `${site.place} · ${coordinate(site.latitude, 'N', 'S')}, ${coordinate(site.longitude, 'E', 'W')}`);
   setText('comparison-summary', site.summary);
   setText('comparison-target', target.name);
-  setText('comparison-score', site.score === null ? 'No percentage published in the cited sources' : `${site.score.value}% · ${site.score.context}`);
+  const earth = earthProfiles[site.id];
+  setText('comparison-observation', `NASA POWER’s MERRA-2 climatology (${climatePeriod}) estimates a mean 2 m air temperature of ${earth.temperature.toFixed(2)} °C and a mean surface pressure of ${earth.pressure.toFixed(2)} kPa for the grid cell around this pin.`);
+  document.getElementById('comparison-observation-links').replaceChildren(
+    sourceLink('NASA POWER values', powerSource(site)),
+    sourceLink('MERRA-2 in Earthdata', earthdataCollection),
+    sourceLink('View area in NASA Worldview', worldviewSource(site))
+  );
+  const planetary = planetaryProfiles[site.target];
+  document.getElementById('comparison-target-observation').replaceChildren(planetary.observation, ' ', sourceLink(...planetary.archive));
+  showSimilarity(site);
   document.getElementById('comparison-gallery').replaceChildren(...siteImagery[site.id].map(makeImageFigure));
 
   document.querySelector('#comparison-features').replaceChildren(...analogData.features.map((feature, index) => {
@@ -59,13 +98,17 @@ function showComparison(site) {
     return section;
   }));
 
-  const sources = [...site.sources, target.source];
-  if (site.score) sources.push(site.score.source);
+  const sources = [
+    ...site.sources,
+    target.source,
+    ['NASA · Planetary reference mean temperatures and Earth gravity', planetaryFacts],
+    ...planetary.sources,
+    ['NASA · Ultraviolet radiation and Earth’s ozone shielding', 'https://science.nasa.gov/earth/earth-observatory/ultraviolet-radiation/'],
+    ['NASA · Space radiation shielding on Earth and Mars', 'https://www.nasa.gov/science-research/heliophysics/real-martians-how-to-protect-astronauts-from-space-radiation-on-mars/']
+  ];
   document.querySelector('#comparison-sources').replaceChildren(...sources.map(([labelText, url]) => {
     const item = element('li');
-    const link = element('a', `${labelText} ↗`, 'text-link');
-    link.href = url;
-    item.append(link);
+    item.append(sourceLink(labelText, url));
     return item;
   }));
   panel.showModal();

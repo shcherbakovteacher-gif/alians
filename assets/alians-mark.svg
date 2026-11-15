@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 80" fill="none">
+  <defs>
+    <radialGradient id="earth" cx=".38" cy=".29" r=".74"><stop stop-color="#4b83bd"/><stop offset="1" stop-color="#101e42"/></radialGradient>
+    <radialGradient id="mars" cx=".37" cy=".32" r=".68"><stop stop-color="#ffa771"/><stop offset="1" stop-color="#a74632"/></radialGradient>
+    <radialGradient id="moon" cx=".38" cy=".31" r=".75"><stop stop-color="#ece6dc"/><stop offset="1" stop-color="#777580"/></radialGradient>
+    <clipPath id="globe"><circle cx="47" cy="41" r="27"/></clipPath>
+  </defs>
+  <circle cx="47" cy="41" r="27" fill="url(#earth)" stroke="#8cc6f7" stroke-width="1.5"/>
+  <g clip-path="url(#globe)">
+    <path fill="#88a985" d="m29 19 12-2 9 5-4 5-7 2-4 7-7-3-9 2 2-8zm10 16 6-1 6 5 3 10-5 4-7 13-3-10 2-7-6-6zm20-13 11 4 4 8-10 2-5 9-5-5 4-8-3-5z"/>
+    <path d="M19 34c14-4 17 6 28 5m7 12c7 1 14-2 21-6M26 27c4-3 13-4 18-2" stroke="#ddedff" stroke-width="2.4" stroke-linecap="round" opacity=".62"/>
+  </g>
+  <path d="M23 61h7l10-10" stroke="#a8cef7" stroke-width="1.8"/>
+  <circle cx="40" cy="51" r="4" fill="#0c1526" stroke="#a8cef7" stroke-width="1.8"/>
+  <rect x="2" y="51" width="24" height="24" rx="4" fill="#131b2a" stroke="#a8cef7" stroke-width="2"/>
+  <circle cx="14" cy="63" r="7.4" fill="url(#moon)"/>
+  <path d="M73 19h-8l-9 13" stroke="#ff8558" stroke-width="1.8"/>
+  <circle cx="56" cy="32" r="4" fill="#241517" stroke="#ff8558" stroke-width="1.8"/>
+  <rect x="70" y="6" width="24" height="24" rx="4" fill="#261b21" stroke="#ff8558" stroke-width="2"/>
+  <circle cx="82" cy="18" r="7.4" fill="url(#mars)"/>
+  <path d="m11 60 2 2m3 2 2-2m61-6 3 1 4-2" stroke="#20202b" stroke-width=".95" opacity=".52" stroke-linecap="round"/>
+</svg>
