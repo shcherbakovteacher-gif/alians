@@ -10,10 +10,12 @@ const zoomIn = document.querySelector('#zoom-in');
 const zoomOut = document.querySelector('#zoom-out');
 const panel = document.querySelector('#comparison');
 const closePanel = document.querySelector('#close-comparison');
+const focusButton = document.querySelector('#focus-site');
+const satelliteLayer = createSatelliteLayer(map.querySelector('.map-tiles'));
 
 const view = { width: 0, height: 0, fit: 0, zoom: 1, x: 0, y: 0 };
-const maxZoom = 8;
 const pointers = new Map();
+let activeSite;
 
 function element(tag, content, className) {
   const node = document.createElement(tag);
@@ -31,6 +33,7 @@ function coordinate(value, positive, negative) {
 }
 
 function showComparison(site) {
+  activeSite = site;
   const target = analogData.targets[site.target];
   const label = site.type === 'team' ? 'Team candidate' : 'NASA reference';
   setText('comparison-type', `${target.name} analog · ${label}`);
@@ -39,6 +42,7 @@ function showComparison(site) {
   setText('comparison-summary', site.summary);
   setText('comparison-target', target.name);
   setText('comparison-score', site.score === null ? 'No percentage published in the cited sources' : `${site.score.value}% · ${site.score.context}`);
+  document.getElementById('comparison-gallery').replaceChildren(...siteImagery[site.id].map(makeImageFigure));
 
   document.querySelector('#comparison-features').replaceChildren(...analogData.features.map((feature, index) => {
     const row = element('tr');
@@ -69,7 +73,41 @@ function showComparison(site) {
   closePanel.focus({ preventScroll: true });
 }
 
+function makeImageFigure(entry) {
+  const { file, kind, description, author, source, license, licenseUrl } = entry;
+  const figure = element('figure');
+  const imageLink = element('a', null, 'site-image');
+  const image = element('img');
+  image.src = `assets/sites/${file}.jpg`;
+  image.alt = description;
+  image.decoding = 'async';
+  imageLink.href = image.src;
+  imageLink.target = '_blank';
+  imageLink.rel = 'noopener';
+  imageLink.setAttribute('aria-label', `Open full image: ${description}`);
+  imageLink.append(image);
+  const caption = element('figcaption');
+  const credit = element('p', null, 'image-credit');
+  const sourceLink = element('a', author);
+  sourceLink.href = source;
+  credit.append(sourceLink, ' · ');
+  if (licenseUrl) {
+    const licenseLink = element('a', license);
+    licenseLink.href = licenseUrl;
+    credit.append(licenseLink);
+  } else {
+    credit.append(license);
+  }
+  caption.append(element('strong', kind), element('p', description), credit);
+  figure.append(imageLink, caption);
+  return figure;
+}
+
 closePanel.addEventListener('click', () => panel.close());
+focusButton.addEventListener('click', () => {
+  panel.close();
+  goToSite(activeSite);
+});
 panel.addEventListener('click', event => {
   if (event.target === panel) panel.close();
 });
@@ -120,7 +158,8 @@ function paint() {
   view.x = boundAxis(view.x, view.width, width);
   view.y = boundAxis(view.y, view.height, height);
   world.style.transform = `translate(${view.x}px, ${view.y}px) scale(${view.zoom})`;
-  zoomIn.disabled = view.zoom >= maxZoom;
+  satelliteLayer.schedule(view);
+  zoomIn.disabled = view.zoom >= zoomLimit();
   zoomOut.disabled = view.zoom <= 1;
 
   const compact = view.width <= 450;
@@ -151,13 +190,29 @@ function paint() {
   }
 }
 
+function zoomLimit(latitude = 90 - 360 * (view.height / 2 - view.y) / (view.fit * view.zoom)) {
+  const pixels = latitude < -56 ? satelliteLayer.antarcticMaxWidth : satelliteLayer.maxWidth;
+  return pixels / (view.fit * Math.min(devicePixelRatio || 1, 2));
+}
+
 function changeZoom(zoom, x = view.width / 2, y = view.height / 2) {
-  const next = clamp(zoom, 1, maxZoom);
+  const latitude = 90 - 360 * (y - view.y) / (view.fit * view.zoom);
+  const next = clamp(zoom, 1, zoomLimit(latitude));
   const multiplier = next / view.zoom;
   view.x = x - (x - view.x) * multiplier;
   view.y = y - (y - view.y) * multiplier;
   view.zoom = next;
   paint();
+}
+
+function goToSite(site) {
+  view.zoom = Math.min(zoomLimit(site.latitude), 512 * 2 ** 9 / view.fit);
+  const width = view.fit * view.zoom;
+  view.x = view.width / 2 - width * (site.longitude + 180) / 360;
+  view.y = view.height / 2 - width / 2 * (90 - site.latitude) / 180;
+  paint();
+  document.getElementById('explore').scrollIntoView();
+  map.focus({ preventScroll: true });
 }
 
 function pan(dx, dy) {
@@ -170,10 +225,14 @@ function resize() {
   const { clientWidth: width, clientHeight: height } = map;
   if (!width || !height) return;
   const fit = Math.min(width, height * 2);
-  const ratio = view.fit ? fit / view.fit : 1;
+  const previousWidth = view.fit * view.zoom;
+  const latitude = previousWidth ? 90 - 360 * (view.height / 2 - view.y) / previousWidth : 0;
+  const limit = latitude < -56 ? satelliteLayer.antarcticMaxWidth : satelliteLayer.maxWidth;
+  const zoom = Math.min(view.zoom, limit / (fit * Math.min(devicePixelRatio || 1, 2)));
+  const ratio = previousWidth ? fit * zoom / previousWidth : 1;
   view.x = width / 2 - (view.width / 2 - view.x) * ratio;
   view.y = height / 2 - (view.height / 2 - view.y) * ratio;
-  Object.assign(view, { width, height, fit });
+  Object.assign(view, { width, height, fit, zoom });
   world.style.width = `${fit}px`;
   world.style.height = `${fit / 2}px`;
   paint();

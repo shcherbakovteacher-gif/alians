@@ -9,6 +9,8 @@
   <link rel="icon" href="assets/orbit.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
   <script src="data.js" defer></script>
+  <script src="imagery.js" defer></script>
+  <script src="map-tiles.js" defer></script>
   <script src="app.js" defer></script>
 </head>
 <body id="top">
@@ -55,7 +57,8 @@
       </div>
       <div class="map-frame">
         <div id="map" class="map" role="group" tabindex="0" aria-label="Interactive world map" aria-describedby="map-help">
-          <div class="map-world" aria-hidden="true"><img src="assets/earth-map.jpg" alt="" draggable="false"><div class="graticule"></div></div>
+          <div class="map-world" aria-hidden="true"><img src="assets/earth-map.jpg" alt="" draggable="false"></div>
+          <div class="map-tiles" aria-hidden="true"></div>
           <div class="pins"></div>
         </div>
         <p class="map-caption technical" id="site-count" aria-live="polite">10 sites shown</p>
@@ -69,6 +72,7 @@
         <div class="legend" aria-label="Map legend"><span><img src="assets/marker-moon-team.png" alt="">Team candidate</span><span><img src="assets/marker-moon-reference.png" alt="">NASA reference</span></div>
         <p id="map-help">Drag to pan. Use + and − to zoom. With the map focused, use the arrow keys to pan.</p>
       </div>
+      <p class="map-credits">Map imagery <a href="https://science.nasa.gov/earth/earth-observatory/the-blue-marble-true-color-global-imagery-at-1km-resolution/">NASA Blue Marble</a> · <a href="https://cloudless.eox.at/">Sentinel-2 cloudless by EOX IT Services GmbH</a> (contains modified Copernicus Sentinel data 2016, <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>) · <a href="https://lima.usgs.gov/">Landsat Image Mosaic of Antarctica</a></p>
       <noscript><p>Turn on JavaScript to explore the interactive map and site comparisons.</p></noscript>
       <ul class="site-list" id="site-list" aria-label="Sites shown on the map"></ul>
     </section>
@@ -85,7 +89,7 @@
 
   <footer class="footer wrap">
     <a class="wordmark" href="#top"><img src="assets/orbit.svg" alt="" width="25" height="25">Alians</a>
-    <p>Earth imagery: NASA Earth Observatory. Planet and pin artwork: supplied by Alians.</p>
+    <p>Earth globe: NASA Earth Observatory. Planet and pin artwork: supplied by Alians.</p>
     <a href="#top" class="text-link">Back to top ↑</a>
   </footer>
 
@@ -96,6 +100,8 @@
       <h2 id="comparison-name"></h2>
       <p class="location" id="comparison-location"></p>
       <p class="summary" id="comparison-summary"></p>
+      <div class="site-gallery" id="comparison-gallery" aria-label="Imagery of the site"></div>
+      <button class="site-zoom" id="focus-site" type="button">Zoom to this site <span aria-hidden="true">↗</span></button>
       <table class="comparison-table" aria-label="Earth and target comparison">
         <thead><tr><th scope="col">Feature</th><th scope="col">Earth site</th><th scope="col" id="comparison-target"></th></tr></thead>
         <tbody id="comparison-features"></tbody>
