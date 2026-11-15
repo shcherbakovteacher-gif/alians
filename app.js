@@ -130,6 +130,13 @@ function makeImageFigure(entry) {
   imageLink.setAttribute('aria-label', `Open full image: ${description}`);
   imageLink.append(image);
   const caption = element('figcaption');
+  const captionHeading = element('div', null, 'image-caption-heading');
+  const badge = element('span', null, 'media-badge');
+  const icon = element('span', '✦', 'ai-icon');
+  icon.setAttribute('aria-hidden', 'true');
+  badge.title = 'AI-assisted selection and presentation. The image comes from the credited source.';
+  badge.append(icon, 'AI-curated');
+  captionHeading.append(element('strong', kind), badge);
   const credit = element('p', null, 'image-credit');
   const sourceLink = element('a', author);
   sourceLink.href = source;
@@ -141,7 +148,7 @@ function makeImageFigure(entry) {
   } else {
     credit.append(license);
   }
-  caption.append(element('strong', kind), element('p', description), credit);
+  caption.append(captionHeading, element('p', description), credit);
   figure.append(imageLink, caption);
   return figure;
 }

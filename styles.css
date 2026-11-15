@@ -42,7 +42,10 @@ h1 { font-size: clamp(5.3rem, 10vw, 10.4rem); line-height: .95; font-weight: 780
 h1 span { color: var(--orange); }
 .tagline { font-size: clamp(1.75rem, 3vw, 3.5rem); line-height: 1.04; letter-spacing: -.058em; font-weight: 680; }
 .lede { color: var(--muted); max-width: 33ch; font-size: 1rem; line-height: 1.65; margin-top: 1.15rem; }
-.start { display: inline-flex; align-items: center; gap: 2.2rem; margin-top: 1.8rem; padding: .83rem 1.1rem .85rem 1.2rem; color: #111118; background: var(--orange); border: 1px solid var(--orange); border-radius: 4px; text-decoration: none; font-weight: 760; }
+.hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem 1rem; margin-top: 1.8rem; }
+.start { display: inline-flex; align-items: center; gap: 2.2rem; padding: .83rem 1.1rem .85rem 1.2rem; color: #111118; background: var(--orange); border: 1px solid var(--orange); border-radius: 4px; text-decoration: none; font-weight: 760; }
+.ai-disclosure-link { color: var(--muted); font-size: .74rem; text-underline-offset: .2em; }
+.ai-disclosure-link:hover { color: var(--text); }
 .start span { font-size: 1.3rem; line-height: 1; }
 .start:hover { background: #ff8a63; }
 .orbits { position: relative; width: 100%; aspect-ratio: 1.12; }
@@ -63,6 +66,9 @@ h1 span { color: var(--orange); }
 .planet-window span { padding: clamp(.2rem, .6vw, .45rem) .5rem; border-top: 1px solid #ffffff24; font-size: clamp(.55rem, 1.2vw, .72rem); }
 .window-moon { left: 1%; top: 62%; }
 .window-mars { right: 2%; top: 15%; }
+.media-badge { display: inline-flex; align-items: center; gap: .27rem; color: var(--muted); font-size: .68rem; line-height: 1.2; white-space: nowrap; }
+.ai-icon { padding: .10rem .2rem; color: var(--blue); background: #172333; border: 1px solid #52677d; border-radius: 3px; font: 650 .59rem/1 Consolas, monospace; }
+.hero-ai { position: absolute; left: 3%; top: 8%; padding: .24rem .36rem; background: #090e18ed; border: 1px solid #344153; border-radius: 4px; }
 .orbits figcaption { position: absolute; bottom: 5%; right: 16%; color: var(--blue); display: flex; gap: .55rem; align-items: center; }
 
 .explorer { border-top: 1px solid var(--line); padding: 62px 0 70px; scroll-margin-top: 18px; }
@@ -110,6 +116,9 @@ h2 { font-size: clamp(2rem, 4.4vw, 3.75rem); letter-spacing: -.065em; line-heigh
 
 .about { display: grid; grid-template-columns: .8fr 1.2fr; gap: 2.2rem; border-top: 1px solid var(--line); padding: 68px 0 75px; }
 .about p { color: var(--muted); max-width: 60ch; font-size: 1.02rem; line-height: 1.65; margin-bottom: 1.1rem; }
+.ai-disclosure { margin-top: 1.3rem; padding-top: 1.05rem; border-top: 1px solid var(--line); scroll-margin-top: 1rem; }
+.ai-disclosure h3 { margin-bottom: .45rem; font-size: .95rem; }
+.ai-disclosure p { margin-bottom: .6rem; font-size: .84rem; }
 .text-link { text-underline-offset: .22em; text-decoration-color: #7a828e; font-size: .87rem; }
 .footer { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; padding: 1.1rem 0 1.5rem; border-top: 1px solid var(--line); }
 .footer p { color: var(--muted); font-size: .79rem; }
@@ -127,7 +136,8 @@ dialog::backdrop { background: #04060bb8; backdrop-filter: blur(2px); }
 .site-image { display: block; }
 .site-image img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border-radius: 4px 4px 0 0; }
 .site-gallery figcaption { padding: .62rem; color: var(--muted); font-size: .79rem; line-height: 1.4; }
-.site-gallery figcaption strong { display: block; color: var(--text); margin-bottom: .25rem; }
+.image-caption-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .26rem .42rem; margin-bottom: .33rem; }
+.site-gallery figcaption strong { color: var(--text); }
 .image-credit { margin-top: .45rem; font-size: .73rem; }
 .site-zoom { border: 1px solid #3a4558; background: #1c2533; border-radius: 4px; cursor: pointer; font-weight: 650; font-size: .85rem; padding: .56rem .72rem; margin: .85rem 0 1.15rem; }
 .site-zoom:hover { border-color: var(--blue); }

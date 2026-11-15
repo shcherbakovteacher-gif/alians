@@ -8,6 +8,10 @@ Alians is an English-language Space Apps project exploring ten terrestrial analo
 
 Open `index.html` in a modern browser. The site is static and uses local assets. On GitHub Pages, the publishing source is the `main` branch at `/`.
 
+## AI use
+
+OpenAI Codex generated the website code, logo, interface graphics and draft copy from the Alians team’s brief. It assisted with research, image selection and preparation, and implementation of the similarity model and feature ratings. The team supplied the concept, candidate sites, marker artwork and research weights. The gallery’s AI-curated label refers to selection and presentation. The images and measurements carry their credited sources. The public site documents this in [How we used AI](https://shcherbakovteacher-gif.github.io/alians/#ai-use).
+
 ## Data and imagery
 
 - `data.js` contains representative coordinates, comparisons and the field sources for each location. `similarity.js` records the research weights, model inputs, and planetary evidence. The site shows each local match, its weight, and its contribution in percentage points.
